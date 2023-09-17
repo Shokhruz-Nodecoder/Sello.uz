@@ -14,7 +14,7 @@ const login2Validation = require("../validations/seller.login.validation");
 const redis = new Redis({
   port: 6379,
   host: "127.0.0.1",
-  //   password: "1234",
+    password: "1234",
 });
 
 const register = async (req, res, next) => {
@@ -43,10 +43,11 @@ const register = async (req, res, next) => {
     const generate = await generateHash(password);
 
     const findUser = await Seller.findAll({
-      where: { email, phone_number },
+      where: { email:email, phone_number : phone_number},
       logging: false,
     });
 
+    console.log(findUser);
     if (findUser.length > 0) {
       return res.status(409).json({ message: "Student already exists" });
     }
@@ -172,19 +173,19 @@ const verify = async (req, res, next) => {
     const [
       firstname,
       lastname,
+      company_name,
+      phone_number,
+      INN,
       email,
       generate,
-      phone_number,
-      company_name,
-      INN,
     ] = await Promise.all([
-      promisify(redis.get).bind(redis)("generate"),
-      promisify(redis.get).bind(redis)("email"),
       promisify(redis.get).bind(redis)("firstname"),
       promisify(redis.get).bind(redis)("lastname"),
-      promisify(redis.get).bind(redis)("phone_number"),
       promisify(redis.get).bind(redis)("company_name"),
+      promisify(redis.get).bind(redis)("phone_number"),
       promisify(redis.get).bind(redis)("INN"),
+      promisify(redis.get).bind(redis)("email"),
+      promisify(redis.get).bind(redis)("generate"),
     ]);
 
     const newUser = await Seller.create({
