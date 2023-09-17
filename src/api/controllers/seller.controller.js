@@ -1,4 +1,4 @@
-const Users = require("../../models/user.model");
+const Seller = require("../../models/seller.model");
 const bcrypt = require("../../libs/bcrypt");
 const jwt = require("../../libs/jwt");
 const { promisify } = require("util");
@@ -6,39 +6,51 @@ const nodemailer = require("nodemailer");
 const Redis = require("ioredis");
 const { generateHash, comparePass } = require("../../libs/bcrypt");
 const { nextTick } = require("process");
-const authValidation = require("../validations/auth.validation");
 const CustomError = require("../../libs/customError");
 const verificationValidation = require("../validations/verify.validation");
-const loginValidation = require("../validations/login.validation");
+const sellerValidation = require("../validations/seller.validation");
+const login2Validation = require("../validations/seller.login.validation");
 
 const redis = new Redis({
   port: 6379,
   host: "127.0.0.1",
-  password: "1234",
+  //   password: "1234",
 });
 
 const register = async (req, res, next) => {
   try {
-    const { fullname, username, email, password } = req.body;
-
-    const validationError = authValidation({
-      username,
+    const {
+      firstname,
+      lastname,
+      email,
       password,
-      fullname,
+      phone_number,
+      company_name,
+      INN,
+    } = req.body;
+
+    const validationError = sellerValidation({
+      firstname,
+      password,
+      lastname,
+      phone_number,
+      company_name,
+      INN,
       email,
     });
     if (validationError) throw new CustomError(400, validationError.message);
 
     const generate = await generateHash(password);
-    const findUser = await Users.findAll({
-      where: { email: email, username: username },
+
+    const findUser = await Seller.findAll({
+      where: { email, phone_number },
       logging: false,
     });
 
     if (findUser.length > 0) {
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(409).json({ message: "Student already exists" });
     }
-    redis.get("codes", async (err, data) => {
+    redis.get("sellers", async (err, data) => {
       if (data) {
         throw new CustomError(500, "Internal Error");
       } else {
@@ -47,9 +59,22 @@ const register = async (req, res, next) => {
 
         const time = 60;
 
-        await redis.set("codes", JSON.stringify(verifyCode), "EX", time);
-        await redis.set("fullname", JSON.stringify(fullname), "EX", time);
-        await redis.set("username", JSON.stringify(username), "EX", time);
+        await redis.set("sellers", JSON.stringify(verifyCode), "EX", time);
+        await redis.set("firstname", JSON.stringify(firstname), "EX", time);
+        await redis.set("lastname", JSON.stringify(lastname), "EX", time);
+        await redis.set(
+          "company_name",
+          JSON.stringify(company_name),
+          "EX",
+          time
+        );
+        await redis.set(
+          "phone_number",
+          JSON.stringify(phone_number),
+          "EX",
+          time
+        );
+        await redis.set("INN", JSON.stringify(INN), "EX", time);
         await redis.set("email", JSON.stringify(email), "EX", time);
         await redis.set("generate", JSON.stringify(generate), "EX", time);
 
@@ -84,17 +109,17 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    const validationError = loginValidation({
-      username,
+    const validationError = login2Validation({
+      email,
       password,
     });
 
     if (validationError) throw new CustomError(400, validationError.message);
 
     const findUser = await Users.findAll(
-      { where: { username: username } },
+      { where: { email: email } },
       { logging: false }
     );
 
@@ -124,13 +149,14 @@ const verify = async (req, res, next) => {
   try {
     const { verification } = req.body;
 
+    console.log(typeof verification);
     const validationError = verificationValidation({
       verification,
     });
     if (validationError) throw new CustomError(400, validationError.message);
 
     const storedCode = await new Promise((resolve, reject) => {
-      redis.get("codes", (err, data) => {
+      redis.get("sellers", (err, data) => {
         if (err) {
           console.error(err);
           reject(err);
@@ -139,20 +165,34 @@ const verify = async (req, res, next) => {
         }
       });
     });
-
     if (verification != storedCode) {
       throw new CustomError(400, "Invalid code");
     }
 
-    const [generate, email, fullname, username] = await Promise.all([
+    const [
+      firstname,
+      lastname,
+      email,
+      generate,
+      phone_number,
+      company_name,
+      INN,
+    ] = await Promise.all([
       promisify(redis.get).bind(redis)("generate"),
       promisify(redis.get).bind(redis)("email"),
-      promisify(redis.get).bind(redis)("fullname"),
-      promisify(redis.get).bind(redis)("username"),
+      promisify(redis.get).bind(redis)("firstname"),
+      promisify(redis.get).bind(redis)("lastname"),
+      promisify(redis.get).bind(redis)("phone_number"),
+      promisify(redis.get).bind(redis)("company_name"),
+      promisify(redis.get).bind(redis)("INN"),
     ]);
-    const newUser = await Users.create({
-      fullname: JSON.parse(fullname),
-      username: JSON.parse(username),
+
+    const newUser = await Seller.create({
+      firstname: JSON.parse(firstname),
+      lastname: JSON.parse(lastname),
+      phone_number: JSON.parse(phone_number),
+      company_name: JSON.parse(company_name),
+      INN: JSON.parse(INN),
       email: JSON.parse(email),
       password: JSON.parse(generate),
     });
@@ -160,7 +200,7 @@ const verify = async (req, res, next) => {
     const token = jwt.sign({ userId: newUser.id });
     res.cookie("token", token);
 
-    res.status(201).json({ message: "User created", token });
+    res.status(201).json({ message: "Seller created", token });
   } catch (error) {
     console.error(error);
     next(error);
