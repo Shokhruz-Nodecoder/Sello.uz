@@ -119,7 +119,7 @@ const login = async (req, res, next) => {
 
     if (validationError) throw new CustomError(400, validationError.message);
 
-    const findUser = await Users.findAll(
+    const findUser = await Seller.findAll(
       { where: { email: email } },
       { logging: false }
     );
@@ -149,8 +149,6 @@ const login = async (req, res, next) => {
 const verify = async (req, res, next) => {
   try {
     const { verification } = req.body;
-
-    console.log(typeof verification);
     const validationError = verificationValidation({
       verification,
     });
