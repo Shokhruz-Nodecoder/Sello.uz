@@ -108,7 +108,7 @@ const getOne = async (req, res, next) => {
   }
 };
 
-const updCategory = async (req, res, next) => {
+const updatedProduct = async (req, res, next) => {
   try {
     const { info, name, price, brand } = req.body;
     const { pro_id } = req.params;
@@ -158,4 +158,22 @@ const updCategory = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { create, getAllproducts, getOne, updCategory };
+
+const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Products.findByPk(id);
+
+    const deletePro = await product.destroy();
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports = {
+  create,
+  getAllproducts,
+  getOne,
+  updatedProduct,
+  deleteProduct,
+};

@@ -48,6 +48,7 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
+
     const validationError = adminValidation({
       username,
       password,
@@ -58,6 +59,7 @@ const login = async (req, res, next) => {
       loggingIn: false,
     });
 
+    // console.log(findAdmin[0].id);
     if (!findAdmin.length) {
       throw new CustomError(404, "Admin not found");
     }
@@ -66,8 +68,9 @@ const login = async (req, res, next) => {
     if (!compare) {
       throw new CustomError(404, "Passwords do not match");
     }
-    const token = jwt.sign({ id: findAdmin.id });
+    const token = jwt.sign({ id: findAdmin[0].id });
 
+    console.log(token);
     res.cookie("token", token);
 
     res.status(201).json({ message: `Welcome`, token: token });

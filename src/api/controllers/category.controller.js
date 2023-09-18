@@ -67,4 +67,39 @@ const getOne = async (req, res, next) => {
   }
 };
 
-module.exports = { categoryCreate, getCategory, getOne };
+const updateCategory = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    const { id } = req.params;
+    const validationError = categoryValidation({
+      name,
+    });
+    if (validationError) throw new CustomError(400, validationError.message);
+
+    const findCategory = await Category.findByPk(id);
+
+    if (findCategory) {
+      const newCategory = await findCategory.update(
+        { name, admin_id: req.user },
+        { logging: false }
+      );
+      res.status(201).json({ message: "Succesfully updated", newCategory });
+    }
+    throw new CustomError(404, "Category not found");
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteCategory = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const categ = await Category.findByPk(id);
+    const deleteCategory = await categ.destroy();
+    res.status(201).json({ message: "Succesfully deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { categoryCreate, getCategory, getOne, updateCategory,deleteCategory };
