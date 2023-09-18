@@ -33,7 +33,7 @@ const register = async (req, res, next) => {
       { logging: false }
     );
 
-    const token = jwt.sign({ adminId: newAdmin.id });
+    const token = jwt.sign({ id: newAdmin.id });
 
     res.cookie("token", token);
 
@@ -66,7 +66,7 @@ const login = async (req, res, next) => {
     if (!compare) {
       throw new CustomError(404, "Passwords do not match");
     }
-    const token = jwt.sign({ userId: findAdmin.id });
+    const token = jwt.sign({ id: findAdmin.id });
 
     res.cookie("token", token);
 

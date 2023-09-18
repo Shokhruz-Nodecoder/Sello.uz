@@ -136,7 +136,7 @@ const login = async (req, res, next) => {
       throw new CustomError(404, "Invalid password provided to login");
     }
 
-    const token = jwt.sign({ userId: findUser[0].id });
+    const token = jwt.sign({ id: findUser[0].id });
 
     res.cookie("token", token);
 
@@ -196,7 +196,7 @@ const verify = async (req, res, next) => {
       password: JSON.parse(generate),
     });
 
-    const token = jwt.sign({ userId: newUser.id });
+    const token = jwt.sign({ id: newUser.id });
     res.cookie("token", token);
 
     res.status(201).json({ message: "Seller created", token });
