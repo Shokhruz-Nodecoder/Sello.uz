@@ -1,11 +1,11 @@
-const {Router} = require("express")
-const { likes } = require("../controllers/likes.controller")
-const isUser = require("../middlewares/isUser.middleware")
+const { Router } = require("express");
+const { likes, getLikes } = require("../controllers/likes.controller");
+const isUser = require("../middlewares/isUser.middleware");
 
-const router = new Router()
+const router = new Router();
 
+router.post("/likes/:product_id", isUser, likes);
 
-router.post("/likes/:user_id/:product_id", isUser,likes)
+router.get("/likes", isUser, getLikes);
 
-
-module.exports = router
+module.exports = router;
