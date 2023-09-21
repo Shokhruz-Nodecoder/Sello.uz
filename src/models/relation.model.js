@@ -21,6 +21,14 @@ const relations = () => {
   Users.belongsToMany(Products, {
     through: "user_to_product",
   });
+
+  Products.belongsToMany(Users, {
+    through: "user_to_bascket",
+  });
+
+  Users.belongsToMany(Products, {
+    through: "user_to_bascket",
+  });
 };
 
 module.exports = relations;
