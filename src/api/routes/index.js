@@ -5,4 +5,5 @@ const Category = require("./category.route")
 const Product = require("./product.route")
 const Likes = require("./likes.route")
 const Basket = require("./basket.route")
-module.exports = [Admin, User, Seller, Category,Product, Likes,Basket];
+const Shopping = require("./shopping.route")
+module.exports = [Admin, User, Seller, Category,Product, Likes,Basket,Shopping];
