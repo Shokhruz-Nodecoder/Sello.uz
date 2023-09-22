@@ -33,7 +33,7 @@ const createBasket = async (req, res, next) => {
         as: 'user_to_bascket', // Specify the correct alias for the basket association
       },
     });
-
+  
     res
       .status(201)
       .json({ message: "Basket successfully added", createBasket });

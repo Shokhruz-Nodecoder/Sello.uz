@@ -1,7 +1,6 @@
 {
   "name": "exam_6",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/app"
@@ -22,9 +21,20 @@
     "nodemailer": "^6.9.4",
     "pg": "^8.11.3",
     "sequelize": "^6.32.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "util": "^0.12.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shokhruz-Nodecoder/Sello.uz.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Shokhruz-Nodecoder/Sello.uz/issues"
+  },
+  "homepage": "https://github.com/Shokhruz-Nodecoder/Sello.uz#readme",
+  "description": ""
 }

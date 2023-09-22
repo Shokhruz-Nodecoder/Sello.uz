@@ -69,7 +69,7 @@ const searchProduct = async (req, res, next) => {
 
 const searchCategory = async (req, res, next) => {
   try {
-    const { name } = req.params;
+    const { name } = req.query;
 
     let conditions = {};
 

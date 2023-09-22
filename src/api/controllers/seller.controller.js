@@ -206,4 +206,37 @@ const verify = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, verify };
+
+const getSellers = async (req, res, next) => {
+  try {
+    const seller = await Seller.findAll({
+      attributes: { exclude: ["password"] },
+      logging: false,
+    });
+    if (seller.length < 1) throw new CustomError(404, "Seller not found");
+
+    res.status(200).json({ message: "SUCCES", seller });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getOneSeller = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) throw new CustomError(404, "Invalid id");
+
+    const seller = await Seller.findByPk(id, {
+      attributes: { exclude: ["password"] },
+      logging: false,
+    });
+    if (!seller) throw new CustomError(404, "Seller not found");
+
+    res.status(200).json({ message: "Success", seller });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports = { register, login, verify, getSellers, getOneSeller };
